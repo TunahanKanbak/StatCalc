@@ -59,12 +59,12 @@ def gaussian_dist(mean,val):
 
 
 Q_test_confidence={"90" : [0.941, 0.765, 0.642, 0.560, 0.507, 0.468, 0.437, 0.412], "95": [0.970, 0.829, 0.710, 0.625, 0.568, 0.526, 0.493, 0.466], "99": [0.994, 0.926, 0.821, 0.740, 0.680, 0.634, 0.598, 0.568]}
-f = open('input.txt')
-all_values = [list(map(float, line.split(" "))) for line in f]  #read each line an creates a data matrix
-f.close()
-f = open('names.txt')
-names = [str(line) for line in f]  #read each line an creates a name matrix
-f.close()
+f_var = open('input.txt')
+all_values = [list(map(float, line.split(" "))) for line in f_var]  #read each line an creates a data matrix
+f_var.close()
+f_name = open('names.txt')
+names = [str(line) for line in f_name]  #read each line an creates a name matrix
+f_name.close()
 for i in range(1, len(all_values)):
     selected_conf_level = str(int(all_values[0][0]))
     Q_test_nums = Q_test_confidence[selected_conf_level]
@@ -83,13 +83,15 @@ for i in range(1, len(all_values)):
     mean = average(all_values[i])
     sample_std = standard_deviation(mean,all_values[i])
     population_std = standard_deviation2(mean,all_values[i])
+
     #gaussian_dist(mean, orj_values) #To see gaussian distribution curve remove first #
 
-    with open('output.txt', 'a') as f:
-        print("\n" + names[i-1], file=f)
-        print("Mean of data set is " + str(round(mean,3)), file=f)
-        print("Sample Standard Deviation(N-1) of data set is " + str(round(sample_std,3)), file=f)
-        print("Population Standard Deviation(N) of data set is " + str(round(population_std, 3)), file=f)
-        print("Number of successive Q-Test for right end of the data set is " + str(count_q_last), file=f)
-        print("Number of successive Q-Test for left end of the data set is " + str(count_q_first), file=f)
-        print("Last form of data set is " + str(all_values[i]), file=f)
+    f = open('output.txt', 'a')
+    f.write("\n" + names[i-1])
+    f.write("Mean of data set is " + str(round(mean,3)) + "\n")
+    f.write("Sample Standard Deviation(N-1) of data set is " + str(round(sample_std,3))+ "\n")
+    f.write("Population Standard Deviation(N) of data set is " + str(round(population_std, 3))+ "\n")
+    f.write("Number of successive Q-Test for right end of the data set is " + str(count_q_last)+ "\n")
+    f.write("Number of successive Q-Test for left end of the data set is " + str(count_q_first)+ "\n")
+    f.write("Last form of data set is " + str(all_values[i])+ "\n")
+    f.close()
