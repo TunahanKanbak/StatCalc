@@ -17,7 +17,7 @@ def standard_deviation(mean,val):
     return sum_value
 
 
-def standard_deviation2(val,mean):
+def standard_deviation2(mean, val):
     sum_value = 0
     for i in range(len(val)):
         sum_value += (val[i] - mean)**2
@@ -26,12 +26,14 @@ def standard_deviation2(val,mean):
 
 
 def q_test_last(val, q_crit):
+    val.sort()
     q_calculated = (val[len(val)-1] - val[len(val)-2])/(val[len(val)-1]-val[0])
     if q_crit < q_calculated:
         return True
 
 
 def q_test_first(val, q_crit):
+    val.sort()
     q_calculated = (val[1]-val[0])/(val[len(val)-1]-val[0])
     if q_crit < q_calculated:
         return True
@@ -55,27 +57,39 @@ def gaussian_dist(mean,val):
     plt.xlabel("Length - cm")
     plt.show()
 
+
+Q_test_confidence={"90" : [0.941, 0.765, 0.642, 0.560, 0.507, 0.468, 0.437, 0.412], "95": [0.970, 0.829, 0.710, 0.625, 0.568, 0.526, 0.493, 0.466], "99": [0.994, 0.926, 0.821, 0.740, 0.680, 0.634, 0.598, 0.568]}
 f = open('input.txt')
-all_values = [list(map(float, line.split(" "))) for line in iter(f)]  #read each line an creates a matrix
+all_values = [list(map(float, line.split(" "))) for line in f]  #read each line an creates a data matrix
 f.close()
-for i in range(len(all_values)):
-    orj_values = all_values[i]
-    orj_values.sort()
-    q_crit = 0.829
-    if len(orj_values) > 3:
-        if q_test_last(orj_values, q_crit):
-            del orj_values[len(orj_values)-1]
-            print("Last value removed.")
-        elif q_test_first(orj_values, q_crit):
-            del orj_values[0]
-            print("First value removed.")
+f = open('names.txt')
+names = [str(line) for line in f]  #read each line an creates a name matrix
+f.close()
+for i in range(1, len(all_values)):
+    selected_conf_level = str(int(all_values[0][0]))
+    Q_test_nums = Q_test_confidence[selected_conf_level]
+    q_crit = Q_test_nums[len(all_values[i])-3]
+    count_q_last = 0
+    count_q_first = 0
+    while q_test_first(all_values[i], q_crit) or q_test_last(all_values[i], q_crit):
+        if len(all_values[i]) > 2:
+            if q_test_last(all_values[i], q_crit):
+                del all_values[i][len(all_values[i])-1]
+                count_q_last += 1
+            elif q_test_first(all_values[i], q_crit):
+                del all_values[i][0]
+                count_q_first += 1
 
-    mean = average(orj_values)
-    std = standard_deviation(mean,orj_values)
+    mean = average(all_values[i])
+    sample_std = standard_deviation(mean,all_values[i])
+    population_std = standard_deviation2(mean,all_values[i])
+    #gaussian_dist(mean, orj_values) #To see gaussian distribution curve remove first #
 
-    #gaussian_dist(mean, orj_values) #To see gaussian distribution curve romevo first #
-
-    with open('file.txt', 'a') as f:
+    with open('output.txt', 'a') as f:
+        print("\n" + names[i-1], file=f)
         print("Mean of data set is " + str(round(mean,3)), file=f)
-        print("Standart Deviation of data set is " + str(round(std,3)), file=f)
-        print("Last form of data set is " + str(orj_values), file=f)
+        print("Sample Standard Deviation(N-1) of data set is " + str(round(sample_std,3)), file=f)
+        print("Population Standard Deviation(N) of data set is " + str(round(population_std, 3)), file=f)
+        print("Number of successive Q-Test for right end of the data set is " + str(count_q_last), file=f)
+        print("Number of successive Q-Test for left end of the data set is " + str(count_q_first), file=f)
+        print("Last form of data set is " + str(all_values[i]), file=f)
