@@ -76,7 +76,6 @@ def gaussian_plot(mean, name, std):
     plt.xlabel("Length - cm")
     fig.savefig(name)
     plt.close()
-    print(name)
 
 
 f_var = open('input.txt')
